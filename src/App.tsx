@@ -15,20 +15,24 @@ export const goodsFromServer: string[] = [
   'Garlic',
 ];
 
-type SortType = 'none' | 'alpha' | 'length';
+enum SortType {
+  None = 'none',
+  Alpha = 'alpha',
+  Length = 'length',
+}
 
 export const App: React.FC = () => {
   const [goods, setGoods] = useState<string[]>([...goodsFromServer]);
-  const [activeSort, setActiveSort] = useState<SortType>('none');
+  const [activeSort, setActiveSort] = useState<SortType>(SortType.None);
   const [isReversed, setIsReversed] = useState(false);
 
   const applySorting = (type: SortType) => {
     let sorted = [...goodsFromServer];
 
-    if (type === 'alpha') {
-      sorted = [...sorted].sort((a, b) => a.localeCompare(b));
-    } else if (type === 'length') {
-      sorted = [...sorted].sort((a, b) => a.length - b.length);
+    if (type === SortType.Alpha) {
+      sorted.sort((a, b) => a.localeCompare(b));
+    } else if (type === SortType.Length) {
+      sorted.sort((a, b) => a.length - b.length);
     }
 
     if (isReversed) {
@@ -47,7 +51,7 @@ export const App: React.FC = () => {
 
   const resetList = () => {
     setGoods([...goodsFromServer]);
-    setActiveSort('none');
+    setActiveSort(SortType.None);
     setIsReversed(false);
   };
 
@@ -58,16 +62,20 @@ export const App: React.FC = () => {
       <div className="buttons">
         <button
           type="button"
-          className={`button is-info${activeSort === 'alpha' ? '' : ' is-light'}`}
-          onClick={() => applySorting('alpha')}
+          className={`button is-info${
+            activeSort === SortType.Alpha ? '' : ' is-light'
+          }`}
+          onClick={() => applySorting(SortType.Alpha)}
         >
           Sort alphabetically
         </button>
 
         <button
           type="button"
-          className={`button is-success${activeSort === 'length' ? '' : ' is-light'}`}
-          onClick={() => applySorting('length')}
+          className={`button is-success${
+            activeSort === SortType.Length ? '' : ' is-light'
+          }`}
+          onClick={() => applySorting(SortType.Length)}
         >
           Sort by length
         </button>

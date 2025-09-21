@@ -2,17 +2,23 @@ import React, { useState } from 'react';
 import 'bulma/css/bulma.css';
 import './App.scss';
 
-export const goodsFromServer: string[] = [
-  'Dumplings',
-  'Carrot',
-  'Eggs',
-  'Ice cream',
-  'Apple',
-  'Bread',
-  'Fish',
-  'Honey',
-  'Jam',
-  'Garlic',
+type Good = {
+  id: number;
+  name: string;
+  price: number;
+};
+
+export const goodsFromServer: Good[] = [
+  { id: 1, name: 'Dumplings', price: 50 },
+  { id: 2, name: 'Carrot', price: 15 },
+  { id: 3, name: 'Eggs', price: 20 },
+  { id: 4, name: 'Ice cream', price: 35 },
+  { id: 5, name: 'Apple', price: 10 },
+  { id: 6, name: 'Bread', price: 25 },
+  { id: 7, name: 'Fish', price: 60 },
+  { id: 8, name: 'Honey', price: 45 },
+  { id: 9, name: 'Jam', price: 30 },
+  { id: 10, name: 'Garlic', price: 12 },
 ];
 
 enum SortType {
@@ -22,17 +28,18 @@ enum SortType {
 }
 
 export const App: React.FC = () => {
-  const [goods, setGoods] = useState<string[]>([...goodsFromServer]);
+  const [goods, setGoods] = useState<Good[]>([...goodsFromServer]);
   const [activeSort, setActiveSort] = useState<SortType>(SortType.None);
   const [isReversed, setIsReversed] = useState(false);
+  const [query, setQuery] = useState('');
 
   const applySorting = (type: SortType) => {
-    let sorted = [...goodsFromServer];
+    const sorted = [...goodsFromServer];
 
     if (type === SortType.Alpha) {
-      sorted.sort((a, b) => a.localeCompare(b));
+      sorted.sort((a, b) => a.name.localeCompare(b.name));
     } else if (type === SortType.Length) {
-      sorted.sort((a, b) => a.length - b.length);
+      sorted.sort((a, b) => a.name.length - b.name.length);
     }
 
     if (isReversed) {
@@ -44,8 +51,7 @@ export const App: React.FC = () => {
   };
 
   const reverseList = () => {
-    const newGoods = [...goods].reverse();
-    setGoods(newGoods);
+    setGoods(prev => [...prev].reverse());
     setIsReversed(prev => !prev);
   };
 
@@ -53,12 +59,34 @@ export const App: React.FC = () => {
     setGoods([...goodsFromServer]);
     setActiveSort(SortType.None);
     setIsReversed(false);
+    setQuery('');
   };
 
-  const isModified = goods.join() !== goodsFromServer.join();
+  const isModified =
+    activeSort !== SortType.None || isReversed || query.trim() !== '';
+
+  const filteredGoods = goods.filter(good =>
+    good.name.toLowerCase().includes(query.toLowerCase()),
+  );
 
   return (
     <div className="section content">
+      <div className="field">
+        <label className="label" htmlFor="filterInput">
+          Filter goods
+        </label>
+        <div className="control">
+          <input
+            id="filterInput"
+            type="text"
+            className="input"
+            placeholder="Type to filter..."
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+          />
+        </div>
+      </div>
+
       <div className="buttons">
         <button
           type="button"
@@ -100,9 +128,9 @@ export const App: React.FC = () => {
       </div>
 
       <ul>
-        {goods.map(good => (
-          <li key={good} data-cy="Good">
-            {good}
+        {filteredGoods.map(good => (
+          <li key={good.id} data-cy="Good">
+            {good.name}
           </li>
         ))}
       </ul>
